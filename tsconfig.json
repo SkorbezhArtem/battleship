@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "Node",
+    "target": "ES2020",
+    "module": "CommonJS",
+    "outDir": "dist",
+    "baseUrl": "src",
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["ESNext"],
+    "esModuleInterop": true,
+    "removeComments": true,
+    "strictNullChecks": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "strictPropertyInitialization": false
+  }
+}
