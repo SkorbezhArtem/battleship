@@ -1,40 +1,48 @@
-import IRegRequest from '../interfaces/IRegRequest';
+import IReqReq from '../interfaces/IRegRequest';
 import computeHash from '../utils/computeHash';
-import players from './players';
+import players from './db/players';
 
-const playerAuth = (reqObj: IRegRequest) => {
-  const { name, password } = reqObj.data;
-
-  const player = players.find((p) => p.name === name);
+const playerAuth = (requestsObj: IReqReq, socketID: number) => {
+  const user = players.filter((user) => user.name === requestsObj.data.name)[0];
   let userIndex: number;
   let isError: boolean;
   let errorText: string;
 
-  if (!player) {
-    userIndex = players.length;
-    players.push({
-      index: userIndex,
-      name,
-      password: computeHash(password),
-    });
-    isError = false;
-    errorText = '';
+  if (!user) {
+    userIndex = socketID;
+    if (!/^[a-zA-Z]+$/.test(requestsObj.data.name)) {
+      isError = true;
+      errorText = 'Name must contain only letters';
+    } else {
+      players.push({
+        index: socketID,
+        name: requestsObj.data.name,
+        password: computeHash(requestsObj.data.password),
+        wins: 0,
+      });
+      userIndex = socketID;
+      isError = false;
+      errorText = '';
+    }
   } else {
-    userIndex = player.index;
-    isError = player.password !== computeHash(password);
-    errorText = isError ? 'Incorrect password' : '';
+    userIndex = socketID;
+    if (user.password === computeHash(requestsObj.data.password)) {
+      isError = false;
+      errorText = '';
+      user.index = socketID;
+    } else {
+      isError = true;
+      errorText = 'Incorrect password!';
+    }
   }
-
-  const responseData = {
-    name,
-    index: userIndex,
-    error: isError,
-    errorText,
-  };
-
   return {
     type: 'reg',
-    data: JSON.stringify(responseData),
+    data: JSON.stringify({
+      name: requestsObj.data.name,
+      index: userIndex,
+      error: isError,
+      errorText: errorText,
+    }),
     id: 0,
   };
 };
